@@ -1,0 +1,5 @@
+project: rnshah9/mayhem-new-bpf-tools
+target: a
+
+cmds:
+  - cmd: /repo/compiler/a.out
