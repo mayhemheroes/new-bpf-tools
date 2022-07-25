@@ -2,4 +2,4 @@ project: new-bpf-tools
 target: a-out
 
 cmds:
-  - cmd: /repo/compiler/a.out
+  - cmd: /a.out
