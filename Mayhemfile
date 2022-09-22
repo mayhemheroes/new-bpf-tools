@@ -1,5 +1,5 @@
 project: new-bpf-tools
-target: a-out
+target: amd-64-arith
 
 cmds:
   - cmd: /a.out
