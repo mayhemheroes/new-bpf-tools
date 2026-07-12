@@ -1,0 +1,26 @@
+project: new-bpf-tools
+target: amd-64-arith
+
+# The archived original `amd-64-arith` target ran a PRE-COMPILED test program (`/a.out`, the compiled
+# output of test/amd64/arith.c) that took NO input at all — it never drove the compiler and could not
+# fuzz anything (0 edges over the project code). The target is CONVERTED (skill-endorsed, see
+# PORTING.md/port-repo field notes): same name, same code path (the amd64 codegen configuration of the
+# compiler), but the fuzzer's input IS now the C program being compiled, driven through the compiler's
+# full pipeline (preprocess -> tokenize -> parse -> optimize -> amd64 codegen) via
+# mayhem/harness/fuzz_bpfc.c.
+#
+# `libfuzzer: true` — the harness (/mayhem/compile-bpfc) is an in-process libFuzzer target built with
+# -fsanitize=fuzzer, so Mayhem gets SanitizerCoverage edge feedback. A plain uninstrumented file-input
+# CLI records ZERO edges under Mayhem's binary-only coverage tracer (§6.2 item 11); an instrumented
+# in-process harness over the same code path is the sanctioned conversion for an unfuzzable raw CLI.
+# Mayhem drives it in fork mode, which bounds per-worker RSS for this GC-less allocate-and-exit compiler
+# (tree.c: "crazy mallocs ... no garbage collection"); the harness interposes the compiler's exit() so a
+# rejected program is just the next input rather than a fatal abort. Seeds are real C programs under
+# mayhem/amd-64-arith/testsuite.
+cmds:
+  - cmd: /mayhem/compile-bpfc
+    libfuzzer: true
+
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/amd-64-arith/testsuite
